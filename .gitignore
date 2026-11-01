@@ -4,7 +4,8 @@
 # ============================================================
 
 # ----- Environment and Secrets -----
-.env
+# .env included intentionally for academic project
+!.env
 *.env
 .env.*
 !.env.example
@@ -32,22 +33,14 @@ env/
 ENV/
 .conda/
 
-# ----- Data Files (may be large) -----
-data/raw/*.csv
-data/raw/*.zip
-data/staging/*.csv
-data/processed/*.csv
-data/curated/*.csv
-data/rejected/*.csv
-data/logs/*.json
-data/logs/*.log
-
-# Keep directory structure placeholders
-!data/raw/.gitkeep
-!data/staging/.gitkeep
-!data/processed/.gitkeep
-!data/curated/.gitkeep
-!data/rejected/.gitkeep
+# ----- Data Files -----
+# All data files included intentionally for academic project
+!data/raw/*.csv
+!data/staging/*.csv
+!data/processed/*.csv
+!data/curated/*.csv
+!data/rejected/*.csv
+!data/logs/*.json
 
 # ----- Logs -----
 logs/
@@ -59,11 +52,11 @@ mlruns/
 mlartifacts/
 
 # ----- Models -----
-models/
-*.pkl
-*.joblib
-*.model
-*.h5
+# Model files included intentionally for academic project
+!models/*.joblib
+!models/*.pkl
+!models/*.csv
+!models/*.png
 
 # ----- Jupyter Notebooks -----
 .ipynb_checkpoints/

@@ -1,0 +1,4 @@
+model_name,recall,precision,f1_score,roc_auc,brier_score,true_positives,false_negatives
+Random Forest,0.5678,0.1819,0.2755,0.6743,0.2204,645,491
+XGBoost,0.5423,0.1839,0.2746,0.6686,0.2083,616,520
+Logistic Regression,0.5361,0.1768,0.2659,0.6627,0.2259,609,527
