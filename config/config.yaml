@@ -1,0 +1,252 @@
+# ============================================================
+# Hospital Readmission Analytics and Prediction
+# Central Configuration File
+# ============================================================
+
+project:
+  name: "Hospital Readmission Analytics and Prediction"
+  version: "1.0.0"
+  course: "Data Engineering and MLOps"
+  description: >
+    A privacy-conscious healthcare data pipeline using the UCI Diabetes
+    130-US Hospitals dataset. Implements ETL, analytical data mart,
+    Streamlit dashboard, and an MLOps pipeline for readmission prediction.
+
+# -------------------------------------------------------
+# Dataset Configuration
+# -------------------------------------------------------
+dataset:
+  name: "UCI Diabetes 130-US Hospitals Dataset"
+  source_url: "https://archive.ics.uci.edu/dataset/296/diabetes+130-us+hospitals+for+years+1999-2008"
+  kaggle_url: "https://www.kaggle.com/datasets/brandao/diabetes"
+  primary_file: "diabetic_data.csv"
+  ids_mapping_file: "IDS_mapping.csv"
+  expected_columns: 50
+  approximate_rows: 101766
+  description: >
+    De-identified encounter-level dataset from 130 US hospitals
+    (1999-2008). Contains diagnoses, procedures, medications, and
+    readmission labels. No personally identifiable information.
+  readmission_label: "readmitted"
+  readmission_classes:
+    positive: "<30"          # Readmitted within 30 days
+    negative_gt30: ">30"     # Readmitted after 30 days
+    negative_no: "NO"        # Not readmitted
+
+# -------------------------------------------------------
+# Data Paths (relative to project root)
+# -------------------------------------------------------
+paths:
+  data_raw: "data/raw"
+  data_staging: "data/staging"
+  data_processed: "data/processed"
+  data_curated: "data/curated"
+  data_rejected: "data/rejected"
+  data_logs: "data/logs"
+  logs: "logs"
+  models: "models"
+  reports: "reports"
+
+# -------------------------------------------------------
+# Database Configuration
+# (Credentials loaded from .env — never hardcoded here)
+# -------------------------------------------------------
+database:
+  schemas:
+    raw: "raw"
+    staging: "staging"
+    curated: "curated"
+    analytics: "analytics"
+  tables:
+    raw_encounters: "raw.encounters"
+    staging_encounters: "staging.encounters"
+    curated_encounters: "curated.encounters"
+    admission: "analytics.dim_admission"
+    diagnosis: "analytics.dim_diagnosis"
+    patient_summary: "analytics.fact_patient_summary"
+    readmission: "analytics.fact_readmission"
+    ingestion_metadata: "analytics.ingestion_metadata"
+    validation_results: "analytics.validation_results"
+    rejected_records: "analytics.rejected_records"
+
+# -------------------------------------------------------
+# ETL Configuration
+# -------------------------------------------------------
+etl:
+  # Special missing-value codes in the UCI dataset
+  missing_value_codes:
+    - "?"
+    - "Unknown/Invalid"
+    - "NULL"
+    - ""
+  
+  # Columns that must be present in the raw dataset
+  required_columns:
+    - "encounter_id"
+    - "patient_nbr"
+    - "race"
+    - "gender"
+    - "age"
+    - "admission_type_id"
+    - "discharge_disposition_id"
+    - "admission_source_id"
+    - "time_in_hospital"
+    - "num_lab_procedures"
+    - "num_procedures"
+    - "num_medications"
+    - "number_outpatient"
+    - "number_emergency"
+    - "number_inpatient"
+    - "diag_1"
+    - "diag_2"
+    - "diag_3"
+    - "number_diagnoses"
+    - "readmitted"
+
+  # Numeric column valid ranges for validation
+  numeric_ranges:
+    time_in_hospital:
+      min: 1
+      max: 14
+    num_lab_procedures:
+      min: 1
+      max: 132
+    num_procedures:
+      min: 0
+      max: 6
+    num_medications:
+      min: 1
+      max: 81
+    number_diagnoses:
+      min: 1
+      max: 16
+
+  # Valid categorical values
+  valid_gender_values:
+    - "Male"
+    - "Female"
+
+  # Age groups (as they appear in the UCI dataset)
+  age_groups:
+    - "[0-10)"
+    - "[10-20)"
+    - "[20-30)"
+    - "[30-40)"
+    - "[40-50)"
+    - "[50-60)"
+    - "[60-70)"
+    - "[70-80)"
+    - "[80-90)"
+    - "[90-100)"
+
+# -------------------------------------------------------
+# Ingestion Metadata
+# -------------------------------------------------------
+ingestion:
+  source_name: "UCI Diabetes 130-US Hospitals Dataset"
+  pipeline_name: "hospital_readmission_etl"
+  max_retries: 3
+
+# -------------------------------------------------------
+# Feature Engineering
+# -------------------------------------------------------
+features:
+  # Binary readmission target: 1 = readmitted <30 days, 0 = otherwise
+  target_column: "readmission_binary"
+  
+  # Features used for ML model
+  numeric_features:
+    - "time_in_hospital"
+    - "num_lab_procedures"
+    - "num_procedures"
+    - "num_medications"
+    - "number_outpatient"
+    - "number_emergency"
+    - "number_inpatient"
+    - "number_diagnoses"
+    - "diagnosis_count"
+    - "medication_count"
+    - "prior_admission_count"
+
+  categorical_features:
+    - "race"
+    - "gender"
+    - "age"
+    - "admission_type_id"
+    - "discharge_disposition_id"
+    - "admission_source_id"
+    - "max_glu_serum"
+    - "A1Cresult"
+    - "insulin"
+    - "diabetesMed"
+    - "primary_diagnosis_category"
+
+# -------------------------------------------------------
+# Machine Learning Configuration
+# -------------------------------------------------------
+ml:
+  experiment_name: "hospital_readmission_prediction"
+  random_state: 42
+  test_size: 0.20
+  val_size: 0.10
+  cv_folds: 5
+  
+  # Primary metric to select the best model
+  # Recall is prioritized in healthcare to minimize missed high-risk cases
+  primary_metric: "recall"
+
+  models:
+    logistic_regression:
+      C: 1.0
+      max_iter: 1000
+      class_weight: "balanced"
+      solver: "lbfgs"
+    
+    random_forest:
+      n_estimators: 200
+      max_depth: 10
+      min_samples_split: 5
+      class_weight: "balanced"
+      random_state: 42
+    
+    xgboost:
+      n_estimators: 200
+      max_depth: 6
+      learning_rate: 0.1
+      scale_pos_weight: 10   # handles class imbalance
+      use_label_encoder: false
+      eval_metric: "logloss"
+
+# -------------------------------------------------------
+# API Configuration
+# -------------------------------------------------------
+api:
+  title: "Hospital Readmission Prediction API"
+  description: >
+    Academic decision-support prototype — NOT for clinical diagnosis.
+    Predicts hospital readmission risk using the UCI Diabetes dataset model.
+  version: "1.0.0"
+  disclaimer: >
+    This API is an academic prototype only. Predictions must NOT be used
+    for clinical decision-making, patient care, or any medical purpose.
+
+# -------------------------------------------------------
+# Dashboard Configuration
+# -------------------------------------------------------
+dashboard:
+  title: "Hospital Readmission Analytics Dashboard"
+  subtitle: "UCI Diabetes 130-US Hospitals Dataset | Academic Project"
+  disclaimer: >
+    This dashboard is for academic purposes only. Data is de-identified
+    and publicly available. Results are analytical, not clinical.
+  page_icon: "🏥"
+
+# -------------------------------------------------------
+# Monitoring Configuration
+# -------------------------------------------------------
+monitoring:
+  drift_threshold: 0.1          # Jensen-Shannon divergence threshold
+  performance_degradation: 0.05  # Drop in AUC that triggers alert
+  min_samples_for_drift: 100
+  alert_channels:
+    - "log"    # Log to file (academic prototype uses log only)

@@ -1,0 +1,102 @@
+# ============================================================
+# Hospital Readmission Analytics and Prediction
+# .gitignore
+# ============================================================
+
+# ----- Environment and Secrets -----
+.env
+*.env
+.env.*
+!.env.example
+
+# ----- Python -----
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.whl
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ----- Virtual Environments -----
+venv/
+.venv/
+env/
+ENV/
+.conda/
+
+# ----- Data Files (may be large) -----
+data/raw/*.csv
+data/raw/*.zip
+data/staging/*.csv
+data/processed/*.csv
+data/curated/*.csv
+data/rejected/*.csv
+data/logs/*.json
+data/logs/*.log
+
+# Keep directory structure placeholders
+!data/raw/.gitkeep
+!data/staging/.gitkeep
+!data/processed/.gitkeep
+!data/curated/.gitkeep
+!data/rejected/.gitkeep
+
+# ----- Logs -----
+logs/
+*.log
+*.log.*
+
+# ----- MLflow -----
+mlruns/
+mlartifacts/
+
+# ----- Models -----
+models/
+*.pkl
+*.joblib
+*.model
+*.h5
+
+# ----- Jupyter Notebooks -----
+.ipynb_checkpoints/
+*.ipynb
+
+# ----- IDE and Editor -----
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ----- Airflow -----
+airflow/logs/
+airflow/airflow.db
+airflow/airflow.cfg
+airflow/airflow.pid
+airflow/standalone_admin_password.txt
+
+# ----- Docker -----
+.docker/
+
+# ----- Testing -----
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+
+# ----- Temporary -----
+tmp/
+temp/
+*.tmp
+*.bak
